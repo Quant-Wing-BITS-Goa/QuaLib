@@ -1,34 +1,52 @@
 import numpy as np
 import pandas as pd
-import mibian
 from scipy.stats import norm
+from math import sqrt
 
 class BSE:
     """
     BSE Class
-    
+
     Args:
     S - Spot Price
-    K - Strike Price 
+    K - Strike Price
     r - Risk Free Rate
     stdev - Standard deviation of underlying asset
     T - Time of expiry of the option
-    
+
     """
-    
+
     def __init__(self,S,K,r,stdev,T):
         self.S = S
         self.K=K
         self.r=r
         self.stdev = stdev
         self.T=T
-    
+
     def impliedvolatility(self):
-        return (mibian.BS([self.S, self.K, self.r, self.T] , callPrice = BSE(self.S, self.K, self.r, self.stdev, self.T).BSM()).impliedVolatility)
+        callprice = BSE(self.S, self.K, self.r, self.stdev, self.T).BSM()
+        tolerance = 1e-3
+        epsilon = 1
+        count = 0
+        max_iterations = 1000
+        volatility = 0.50
+
+        while epsilon > tolerance:
+            count += 1
+            if count >= max_iterations:
+                break
+
+            orig_volatility = volatility
+
+            function_value  = BSE(self.S, self.K, self.r, volatility, self.T).BSM() - callprice
+            volatility += -function_value / (self.S * norm.pdf(self.d1()) * sqrt(self.T))
+            epsilon = abs((volatility - orig_volatility) / orig_volatility)
+
+        return(volatility)
 
     def d1(self):
         return (np.log(self.S / self.K) + (self.r + self.stdev ** 2 / 2) * self.T) / (self.stdev * np.sqrt(self.T))
- 
+
     def d2(self):
         return (np.log(self.S / self.K) + (self.r - self.stdev ** 2 / 2) * self.T) / (self.stdev * np.sqrt(self.T))
 
@@ -37,5 +55,5 @@ class BSE:
 
 
 a = BSE(120,100,0.01,0.5,1)
-print("Call option price: ", a.BSM())
+#print("Call option price: ", a.BSM())
 #print("Implied Volatility: ", a.impliedvolatility())
