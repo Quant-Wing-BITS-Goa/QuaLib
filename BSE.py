@@ -36,5 +36,6 @@ class BSE:
         return (self.S * norm.cdf(self.d1())) - (self.K * np.exp(-1*self.r * self.T) * norm.cdf(self.d2()))
 
 
-#a = BSE(120,100,0.01,0.5,1)
-#print("Call option price: ", a.BSM())
+a = BSE(120,100,0.01,0.5,1)
+print("Call option price: ", a.BSM())
+#print("Implied Volatility: ", a.impliedvolatility())
