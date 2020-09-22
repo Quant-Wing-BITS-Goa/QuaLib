@@ -30,7 +30,14 @@ class BSE:
 
     def BSM(self):
         return (self.S * norm.cdf(self.d1())) - (self.K * np.exp(-1*self.r * self.T) * norm.cdf(self.d2()))
+    
+     def BSMP(self, option="P"):
+        if option == "C":
+            return self.BSM()
+        else:
+            return (self.BSM() + self.K/(1+self.r)**self.T - self.S)
 
 
 #a = BSE(120,100,0.01,0.5,1)
-#print("Call option price: ", a.BSM())
+#print("Call option price: ", a.BSMP("C"))
+#print("Put option price: ", a.BSMP("P"))
