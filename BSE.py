@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import mibian
 from scipy.stats import norm
 
 class BSE:
@@ -21,7 +22,10 @@ class BSE:
         self.r=r
         self.stdev = stdev
         self.T=T
-        
+    
+    def impliedvolatility(self):
+        return (mibian.BS([self.S, self.K, self.r, self.T] , callPrice = BSE(self.S, self.K, self.r, self.stdev, self.T).BSM()).impliedVolatility)
+
     def d1(self):
         return (np.log(self.S / self.K) + (self.r + self.stdev ** 2 / 2) * self.T) / (self.stdev * np.sqrt(self.T))
  
