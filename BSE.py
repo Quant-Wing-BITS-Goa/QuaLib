@@ -48,7 +48,6 @@ class BSE:
             else:
                 function_value  = BSE(self.S, self.K, self.r, volatility, self.T).BSM() - price
 
-            function_value  = BSE(self.S, self.K, self.r, volatility, self.T).BSM() - price
             volatility += -function_value / (self.S * norm.pdf(self.d1()) * sqrt(self.T))
             epsilon = abs((volatility - orig_volatility) / orig_volatility)
 
@@ -73,7 +72,7 @@ class BSE:
             return (self.BSM() + self.K/(1+self.r)**self.T - self.S)
 
 
-a = BSE(120,100,0.01,0.5,1)
+#a = BSE(120,100,0.01,0.5,1)
 #print("Call option price: ", a.premium("C"))
 #print("Put option price: ", a.premium("P"))
 #print("Implied Volatility: ", a.impliedvolatility('Call'))
