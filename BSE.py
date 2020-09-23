@@ -23,8 +23,10 @@ class BSE:
         self.stdev = stdev
         self.T=T
 
-    def impliedvolatility(self):
-        callprice = BSE(self.S, self.K, self.r, self.stdev, self.T).BSM()
+    def impliedvolatility(self, callprice = None):
+        if callprice is None:
+            callprice = BSE(self.S, self.K, self.r, self.stdev, self.T).BSM()
+        
         tolerance = 1e-3
         epsilon = 1
         count = 0
@@ -42,7 +44,7 @@ class BSE:
             volatility += -function_value / (self.S * norm.pdf(self.d1()) * sqrt(self.T))
             epsilon = abs((volatility - orig_volatility) / orig_volatility)
 
-        return(volatility)
+        return (volatility)
         
     def d1(self):
         return (np.log(self.S / self.K) + (self.r + self.stdev ** 2 / 2) * self.T) / (self.stdev * np.sqrt(self.T))
@@ -61,6 +63,6 @@ class BSE:
 
 
 a = BSE(120,100,0.01,0.5,1)
-print("Call option price: ", a.premium("C"))
-print("Put option price: ", a.premium("P"))
-print("Implied Volatility: ", a.impliedvolatility())
+#print("Call option price: ", a.premium("C"))
+#print("Put option price: ", a.premium("P"))
+#print("Implied Volatility: ", a.impliedvolatility())
