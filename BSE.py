@@ -23,9 +23,12 @@ class BSE:
         self.stdev = stdev
         self.T=T
 
-    def impliedvolatility(self, callprice = None):
-        if callprice is None:
-            callprice = BSE(self.S, self.K, self.r, self.stdev, self.T).BSM()
+    def impliedvolatility(self, option = 'Call', price = None):
+        if price is None:
+            if option == 'Put':
+                price = BSE(self.S, self.K, self.r, self.stdev, self.T).putprice()
+            else:
+                price = BSE(self.S, self.K, self.r, self.stdev, self.T).BSM()
         
         tolerance = 1e-3
         epsilon = 1
@@ -35,12 +38,17 @@ class BSE:
 
         while epsilon > tolerance:
             count += 1
+
             if count >= max_iterations:
                 break
-
             orig_volatility = volatility
 
-            function_value  = BSE(self.S, self.K, self.r, volatility, self.T).BSM() - callprice
+            if option == 'Put':
+                function_value  = BSE(self.S, self.K, self.r, volatility, self.T).putprice() - price
+            else:
+                function_value  = BSE(self.S, self.K, self.r, volatility, self.T).BSM() - price
+
+            function_value  = BSE(self.S, self.K, self.r, volatility, self.T).BSM() - price
             volatility += -function_value / (self.S * norm.pdf(self.d1()) * sqrt(self.T))
             epsilon = abs((volatility - orig_volatility) / orig_volatility)
 
@@ -55,6 +63,9 @@ class BSE:
     def BSM(self):
         return (self.S * norm.cdf(self.d1())) - (self.K * np.exp(-1*self.r * self.T) * norm.cdf(self.d2()))
     
+    def putprice(self):
+        return (-self.S * norm.cdf(-self.d1())) + (self.K * np.exp(-1*self.r * self.T) * norm.cdf(-self.d2()))
+
     def premium(self, option="P"):
         if option == "C":
             return self.BSM()
@@ -65,4 +76,4 @@ class BSE:
 a = BSE(120,100,0.01,0.5,1)
 #print("Call option price: ", a.premium("C"))
 #print("Put option price: ", a.premium("P"))
-#print("Implied Volatility: ", a.impliedvolatility())
+#print("Implied Volatility: ", a.impliedvolatility('Call'))
