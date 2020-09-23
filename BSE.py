@@ -16,7 +16,7 @@ class BSE:
     
     """
     
-    def __init__(self,S,K,r,stdev,T):
+    def __init__(self,S,K,r,T,stdev = None):
         self.S = S
         self.K=K
         self.r=r
@@ -72,7 +72,7 @@ class BSE:
             return (self.BSM() + self.K/(1+self.r)**self.T - self.S)
 
 
-#a = BSE(120,100,0.01,0.5,1)
+a = BSE(120,100,0.01,1,stdev=0.5)
 #print("Call option price: ", a.premium("C"))
 #print("Put option price: ", a.premium("P"))
-#print("Implied Volatility: ", a.impliedvolatility('Call'))
+#print("Implied Volatility: ", a.impliedvolatility())
