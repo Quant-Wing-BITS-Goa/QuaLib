@@ -7,12 +7,14 @@ import scipy.stats as si
 class BSE:
     """
     BSE Class
+    
     Args:
     S - Spot Price
     K - Strike Price
     r - Risk Free Rate
     stdev - Standard deviation of underlying asset
     T - Time of expiry of the option
+
     """
 
     def __init__(self,S,K,r,T,stdev = None):
@@ -98,4 +100,3 @@ class BSE:
 a = BSE(120,100,0.01,1,stdev=0.5)
 #print("Call option price: ", a.premium("C"))
 #print("Put option price: ", a.premium("P"))
-#print("Implied Volatility: ", a.impliedvolatility())
