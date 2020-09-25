@@ -7,7 +7,7 @@ import scipy.stats as si
 class BSE:
     """
     BSE Class
-
+    
     Args:
     S - Spot Price
     K - Strike Price
@@ -100,4 +100,3 @@ class BSE:
 a = BSE(120,100,0.01,1,stdev=0.5)
 #print("Call option price: ", a.premium("C"))
 #print("Put option price: ", a.premium("P"))
-#print("Implied Volatility: ", a.impliedvolatility())
