@@ -12,7 +12,7 @@ class BSE:
     S - Spot Price
     K - Strike Price
     r - Risk Free Rate
-    stdev - Standard deviation of underlying asset
+    stdev - Standard deviation of underlying asset (actual volatility)
     T - Time of expiry of the option
 
     """
@@ -27,9 +27,9 @@ class BSE:
     def impliedvolatility(self, option = 'Call', price = None):
         if price is None:
             if option == 'Put':
-                price = BSE(self.S, self.K, self.r, self.stdev, self.T).putprice()
+                price = BSE(self.S, self.K, self.r, self.stdev, self.T).premium(option = "P")
             if option == 'Call':
-                price = BSE(self.S, self.K, self.r, self.stdev, self.T).BSM()
+                price = BSE(self.S, self.K, self.r, self.stdev, self.T).premium(option = "C")
 
         tolerance = 1e-3
         epsilon = 1
@@ -84,17 +84,45 @@ class BSE:
         if option == 'Put':
             return (-self.K * self.T * np.exp(-self.r * self.T) * norm.cdf(-self.d2()))
 
-    def BSM(self):
+    def callprice(self):
         return (self.S * norm.cdf(self.d1())) - (self.K * np.exp(-1*self.r * self.T) * norm.cdf(self.d2()))
-
-    def putprice(self):
-        return (-self.S * norm.cdf(-self.d1())) + (self.K * np.exp(-1*self.r * self.T) * norm.cdf(-self.d2()))
 
     def premium(self, option="P"):
         if option == "C":
-            return self.BSM()
+            return self.callprice()
         else:
-            return (self.BSM() + self.K/(1+self.r)**self.T - self.S)
+            return (self.callprice() + self.K/(1+self.r)**self.T - self.S) #Using Put-Call parity
+
+    def hedge(va,vi=None,V,use):
+        """
+        This function is to be only used when implied volatilty 
+        and actual volatility differ. It is used to calculate the amoung
+        of hedge one will need to do when there is a volatility 
+        difference to make a profit. 
+
+        Function prints amd returns the amount of hedge and profit
+
+        Arguments
+        va: Actual Volatility 
+        vi: Implied Volatility, if not passed, calculate using the implied volatility function above
+        V: Price of the option
+        use: Can be either "actual" or "implied" to specify which volatility to use to set up the hedge
+
+        """
+
+        #delta is the amount of hedge and profit is the profit one will make using the specific hedge.
+        if vi==None:
+            vi = #Call the function to calculate implied volatility here 
+        if use=="actual":
+            delta = #N(d1)
+            profit = #Calculate using formula give in Paul Wilmott Chapter 10
+
+        if use=="implied":
+            delta = #N(d1)
+            profit = #Check the literature here, no specific answer as such.
+
+
+
 
 
 a = BSE(120,100,0.01,1,stdev=0.5)
