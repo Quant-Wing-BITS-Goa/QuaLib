@@ -89,14 +89,14 @@ class BSE:
         else:
             return ( self.K * self.T * np.exp(-self.r * self.T) * norm.cdf( self.d2()))
 
-    def callprice(self):
-        return (self.S * norm.cdf(self.d1())) - (self.K * np.exp(-self.r * self.T) * norm.cdf(self.d2()))
+    def callprice(self,v):
+        return (self.S * norm.cdf(self.d1(v))) - (self.K * np.exp(-self.r * self.T) * norm.cdf(self.d2(v)))
 
     def premium(self, option = "Call"):
         if option == "Put"
-            return (self.callprice() + self.K/(1 + self.r)**self.T - self.S) #Using Put-Call parity
+            return (self.callprice(self.stdev) + self.K/(1 + self.r)**self.T - self.S) #Using Put-Call parity
         else:
-            return self.callprice()
+            return self.callprice(self.stdev)
 
     def hedge(va,use,vi=None,V=None):
         """
@@ -121,14 +121,14 @@ class BSE:
         if vi==None:
             vi = self.impliedvolatility("Call",V)#Call the function to calculate implied volatility here 
         if use=="actual":
-            delta = self.d1(va)#N(d1)
-            profit = self.callprice() - delta*self.S#Calculate using formula give in Paul Wilmott Chapter 10
+            delta = norm.pdf(self.d1(va))#N(d1)
+            profit = self.callprice(va) - self.callprice(vi)#Calculate using formula give in Paul Wilmott Chapter 10
 
         if use=="implied":
-            delta = self.d1(vi)#N(d1)
-            profit = 0.5*(va**2 - vi**2)*(self.S**2)*(self.gamma(vi))**2#Check the literature here, no specific answer as such.
+            delta = norm.pdf(self.d1(vi))#N(d1)
+            profit = (0.5*(va**2 - vi**2)*(self.S**2)*(self.gamma(vi))**2)/252
 
-        return delta,profit
+        return delta,abs(profit)
 
 
 a = BSE(120,100,0.01,1,stdev=0.5)
