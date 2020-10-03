@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm
 from math import sqrt, pi
-import scipy.stats as si
 
 class BSE:
     """
@@ -17,19 +16,19 @@ class BSE:
 
     """
 
-    def __init__(self,S,K,r,T,stdev = None):
+    def __init__(self, S, K, r, T, stdev = None):
         self.S = S
-        self.K=K
-        self.r=r
+        self.K = K
+        self.r = r
         self.stdev = stdev
-        self.T=T
+        self.T = T
 
-    def impliedvolatility(self, option = 'Call', price = None):
+    def impliedvolatility(self, option = "Call", price = None):
         if price is None:
-            if option == 'Put':
-                price = BSE(self.S, self.K, self.r, self.stdev, self.T).premium(option = "P")
-            if option == 'Call':
-                price = BSE(self.S, self.K, self.r, self.stdev, self.T).premium(option = "C")
+            if option == "Put":
+                price = BSE(self.S, self.K, self.r, self.stdev, self.T).premium(option = "Put")
+            else:
+                price = BSE(self.S, self.K, self.r, self.stdev, self.T).premium(option = "Call")
 
         tolerance = 1e-3
         epsilon = 1
@@ -44,56 +43,62 @@ class BSE:
                 break
             orig_volatility = volatility
 
-            if option == 'Put':
-                function_value  = BSE(self.S, self.K, self.r, volatility, self.T).putprice() - price
-            if option == 'Call':
-                function_value  = BSE(self.S, self.K, self.r, volatility, self.T).BSM() - price
+            if option == "Put":
+                function_value  = BSE(self.S, self.K, self.r, volatility, self.T).premium(option = "Put")  - price
+            else:
+                function_value  = BSE(self.S, self.K, self.r, volatility, self.T).premium(option = "Call") - price
 
             volatility += -function_value / (self.S * norm.pdf(self.d1()) * sqrt(self.T))
             epsilon = abs((volatility - orig_volatility) / orig_volatility)
 
-        return (volatility)
+        return volatility
 
-    def d1(self):
-        return (np.log(self.S / self.K) + (self.r + self.stdev ** 2 / 2) * self.T) / (self.stdev * np.sqrt(self.T))
+    def d1(self,v=None):
+        if v == None:
+            v=self.stdev
+        return (np.log(self.S / self.K) + (self.r + v ** 2 / 2) * self.T) / (v * np.sqrt(self.T))
 
-    def d2(self):
-        return (np.log(self.S / self.K) + (self.r - self.stdev ** 2 / 2) * self.T) / (self.stdev * np.sqrt(self.T))
+    def d2(self, v=None):
+        if v==None:
+            v=self.stdev
+        return (np.log(self.S / self.K) + (self.r - v ** 2 / 2) * self.T) / (v * np.sqrt(self.T))
 
-    def delta(self, option = 'Call'):
-        if option == 'Put':
+    def delta(self, option = "Call"):
+        if option == "Put":
             return (-norm.cdf(-self.d1()))
-        if option == 'Call':
-            return ( norm.cdf( self.d1()))
+        else:
+            return norm.cdf(self.d1())
 
-    def theta(self, option = 'Call'):
-        if option == 'Put':
+    def theta(self, option = "Call"):
+        if option == "Put":
             return (-self.S * self.stdev * norm.pdf(-self.d1()) / (2 * np.sqrt(self.T)) + self.r * self.K * np.exp(-self.r * self.T) * norm.cdf(-self.d2()))
-        if option == 'Call':
+        else:
             return (-self.S * self.stdev * norm.pdf( self.d1()) / (2 * np.sqrt(self.T)) - self.r * self.K * np.exp(-self.r * self.T) * norm.cdf( self.d2()))
 
     def vega(self):
         return (self.S * norm.pdf(self.d1()) * np.sqrt(self.T))
 
-    def gamma(self):
-        return (self.K * np.exp(-self.r * self.T) * (norm.pdf(self.d2()) / (self.S**2 * self.stdev * np.sqrt(self.T))))
+    def gamma(self,v=None):
+        if v==None:
+            v=self.stdev
+        return (self.K * np.exp(-self.r * self.T) * (norm.pdf(self.d2(v)) / (self.S**2 * v * np.sqrt(self.T))))
 
-    def rho(self, option = 'Call'):
-        if option == 'Call':
-            return ( self.K * self.T * np.exp(-self.r * self.T) * norm.cdf( self.d2()))
-        if option == 'Put':
+    def rho(self, option = "Call"):
+        if option == "Put":
             return (-self.K * self.T * np.exp(-self.r * self.T) * norm.cdf(-self.d2()))
+        else:
+            return ( self.K * self.T * np.exp(-self.r * self.T) * norm.cdf( self.d2()))
 
     def callprice(self):
-        return (self.S * norm.cdf(self.d1())) - (self.K * np.exp(-1*self.r * self.T) * norm.cdf(self.d2()))
+        return (self.S * norm.cdf(self.d1())) - (self.K * np.exp(-self.r * self.T) * norm.cdf(self.d2()))
 
-    def premium(self, option="P"):
-        if option == "C":
-            return self.callprice()
+    def premium(self, option = "Call"):
+        if option == "Put"
+            return (self.callprice() + self.K/(1 + self.r)**self.T - self.S) #Using Put-Call parity
         else:
-            return (self.callprice() + self.K/(1+self.r)**self.T - self.S) #Using Put-Call parity
+            return self.callprice()
 
-    def hedge(va,vi=None,V,use):
+    def hedge(va,use,vi=None,V=None):
         """
         This function is to be only used when implied volatilty 
         and actual volatility differ. It is used to calculate the amoung
@@ -111,18 +116,19 @@ class BSE:
         """
 
         #delta is the amount of hedge and profit is the profit one will make using the specific hedge.
+        if V==None:
+            V=self.S
         if vi==None:
-            vi = #Call the function to calculate implied volatility here 
+            vi = self.impliedvolatility("Call",V)#Call the function to calculate implied volatility here 
         if use=="actual":
-            delta = #N(d1)
-            profit = #Calculate using formula give in Paul Wilmott Chapter 10
+            delta = self.d1(va)#N(d1)
+            profit = self.callprice() - delta*self.S#Calculate using formula give in Paul Wilmott Chapter 10
 
         if use=="implied":
-            delta = #N(d1)
-            profit = #Check the literature here, no specific answer as such.
+            delta = self.d1(vi)#N(d1)
+            profit = 0.5*(va**2 - vi**2)*(self.S**2)*(self.gamma(vi))**2#Check the literature here, no specific answer as such.
 
-
-
+        return delta,profit
 
 
 a = BSE(120,100,0.01,1,stdev=0.5)
