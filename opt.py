@@ -5,7 +5,7 @@ from math import sqrt, pi
 
 class opt:
     """
-    BSE Class
+    opt class:
     
     Args:
     df - dataframe conmprisinng of daily returns of each ticker
