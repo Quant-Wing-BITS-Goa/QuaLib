@@ -11,6 +11,7 @@ class opt:
     df - dataframe conmprisinng of daily returns of each ticker
 
     Each different method returns a dictionary with weights assigned
+    to the different tickers
 
     """
 
@@ -20,8 +21,18 @@ class opt:
     def HRP():
         #code the Hierarchical Risk Parity Algorithm here 
 
-    def markowitz():
-        #code the markowitz efficient frontier algorithm here
+    def markowitz(port):
+        """
+        The argument port can be sharpe, volatility in which cases
+        you either maximize the sharpe ratio or minimize the volatility
+        repectivle
+
+        """
+        if port=="sharpe":
+            #code and return the weights for maximum sharpe
+
+        if port == "volatility":
+            #code and return the weights for the portfolio with minimum volatility
 
     def original():
         #Leave this for now
