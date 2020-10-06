@@ -18,7 +18,55 @@ class opt:
     def __init__(self, df):
         self.df = df
 
-    def HRP():
+    def HRP(self):
+        estimate_correl = self.df.corr(method='pearson')
+        estimate_covar = self.df.cov()
+        distances = np.sqrt((1 - estimate_correl) / 2)
+        from scipy.cluster.hierarchy import linkage
+        link = linkage(estimate_correl, 'single')
+        def get_quasi_diag(link):
+            link = link.astype(int)
+            sort_ix = pd.Series([link[-1,0], link[-1,1]]) 
+            num_items = link[-1, 3]
+            while sort_ix.max() >= num_items:
+                sort_ix.index = range(0, sort_ix.shape[0]*2, 2)
+                df0 = sort_ix[sort_ix >= num_items] 
+                i = df0.index
+                j = df0.values - num_items # 
+                sort_ix[i] = link[j,0] 
+                df0  = pd.Series(link[j, 1], index=i+1)
+                sort_ix = sort_ix.append(df0)
+                sort_ix = sort_ix.sort_index()
+                sort_ix.index = range(sort_ix.shape[0])
+            return sort_ix.tolist()
+        sort_ix = get_quasi_diag(link)
+        def get_cluster_var(cov, c_items):
+            cov_ = cov.iloc[c_items, c_items] 
+            ivp = 1./np.diag(cov_)
+            ivp/=ivp.sum()
+            w_ = ivp.reshape(-1,1)
+            c_var = np.dot(np.dot(w_.T, cov_), w_)[0,0]
+            return c_var
+        def get_rec_bipart(cov, sort_ix):
+            w = pd.Series(1, index=sort_ix)
+            c_items = [sort_ix]
+            while len(c_items) > 0:
+                c_items = [i[int(j):int(k)] for i in c_items for j,k in 
+                   ((0,len(i)/2),(len(i)/2,len(i))) if len(i)>1]
+                for i in range(0, len(c_items), 2):
+                    c_items0 = c_items[i] 
+                    c_items1 = c_items[i+1]
+                    c_var0 = get_cluster_var(cov, c_items0)
+                    c_var1 = get_cluster_var(cov, c_items1)
+                    alpha = 1 - c_var0/(c_var0+c_var1)
+                    w[c_items0] *= alpha
+                    w[c_items1] *=1-alpha
+            return w
+        
+        weights = get_rec_bipart(estimate_covar, sort_ix)
+        new_index = [self.df.columns[i] for i in weights.index]
+        weights.index = new_index
+        return weights
         #code the Hierarchical Risk Parity Algorithm here 
 
     def markowitz(port):
