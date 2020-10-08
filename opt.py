@@ -89,14 +89,14 @@ class opt:
             def check_sum(weights):
                 return np.sum(weights) - 1
             cons = ({'type':'eq','fun': check_sum})
-            bounds = tuple((0,1) for x in range(len(df.columns)))
+            bounds = tuple((0,1) for x in range(len(self.df.columns)))
             init_guess=[]
-            for x in range(len(df.columns)):
-                init_guess.append(1/len(df.columns))
-            log_return=np.log(df/df.shift(1))
+            for x in range(len(self.df.columns)):
+                init_guess.append(1/len(self.df.columns))
+            log_return=np.log(self.df/self.df.shift(1))
             from scipy.optimize import minimize
             opt_sharp = minimize(neg_sharpe,init_guess,method='SLSQP',bounds=bounds,constraints=cons)
-            result=dict(zip(df.columns,opt_sharp .x))
+            result=dict(zip(self.df.columns,opt_sharp .x))
             return result
 
         if port == "volatility":
