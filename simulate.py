@@ -16,6 +16,8 @@ n: no. of different MC simultions
 
 The different functions sould return a nXT matrix
 
+
+plot_sim allows you to print upto 10 simulations of the mentioned function in format (s0,T,n,func)
 """
 
 def asset(S0,T,n):
@@ -36,6 +38,7 @@ def asset(S0,T,n):
 
 
         return price_list # Tx n matrix
+    
 def currency(S0,T,n):
     rf = 0.02 # risk free rate
     returns =data.pct_change()
@@ -75,3 +78,29 @@ def expBM(S0,T,n):
 
     #      plt.plot(price_list)
     return price_list #output nXT matrix
+
+def plot_sim(S0,T,n, func =asset):
+    if func == asset:
+        if n > 10 :
+            price_list = asset(S0,T,10)
+            plt.plot(price_list)
+        else:
+            price_list = asset(S0,T,n)
+            plt.plot(price_list)
+    if func == currency:
+        if n > 10 :
+            price_list = currency(S0,T,10)
+            plt.plot(price_list)
+        else:
+            price_list = currency(S0,T,n)
+            plt.plot(price_list)
+    if func == expBM:
+        if n > 10 :
+            price_list = expBM(S0,T,10)
+            plt.plot(price_list)
+        else:
+            price_list = expBM(S0,T,n)
+            plt.plot(price_list)
+    return plt.show()
+
+    
