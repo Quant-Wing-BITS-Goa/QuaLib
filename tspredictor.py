@@ -1,10 +1,14 @@
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
-import statsmodels
 from math import sqrt, pi
+from scipy.stats import norm
+from statsmodels.tsa.ar_model import AutoReg
+from statsmodels.tsa.arima_model import ARIMA
+from sklearn.metrics import mean_squared_error
+
 
 class tspredictor:
+
     """
     BSE Class
     
@@ -17,6 +21,46 @@ class tspredictor:
     def __init__(self, df):
         self.df = df
 
-    def AR(self,lags):
+    def AR(self, lags):
 
-    def ARMA(self,order):
+        X = self.df.values
+        train, test = X[1:int(0.90 * len(X))], X[int(0.90 * len(X)):]
+        model = AutoReg(train, lags = lags)
+        model_fit = model.fit()
+
+        predictions = model_fit.predict(start = len(train), end = len(train) + len(test) - 1, dynamic = False)
+        pred_list = []
+        expd_list = []
+
+        for i in range(len(predictions)):
+            pred_list.append(predictions[i])
+            expd_list.append(test[i])
+        
+        rmse = sqrt(mean_squared_error(test, predictions))
+        print('RSME:', rmse)
+
+        results = pd.DataFrame(np.column_stack([pred_list, expd_list]), columns = ['Predictions', 'Test'])        
+        return results
+
+
+    def ARMA(self, order):
+
+        X = self.df.values
+        train, test = X[1:int(0.90 * len(X))], X[int(0.90 * len(X)):]
+        history = [x for x in train]
+        pred_list = []
+        expd_list = []
+
+        for i in range(len(test)):
+            model = ARIMA(history, order = order)
+            model_fit = model.fit(disp = 0)
+            y_hat = model_fit.forecast()[0]
+            pred_list.append(y_hat)
+            expd_list.append(test[i])
+
+        error = mean_squared_error(test, pred_list)
+        print('Error:', error)
+
+        results = pd.DataFrame(np.column_stack([pred_list, expd_list]), columns = ['Predictions', 'Test'])        
+        return results
+
