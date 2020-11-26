@@ -64,3 +64,13 @@ class tspredictor:
         results = pd.DataFrame(np.column_stack([pred_list, expd_list]), columns = ['Predictions', 'Test'])        
         return results
 
+    def ARIMA(self, order):
+
+    def SARIMAX(self, order, seasonal_order):
+
+    def VAR(self):
+
+    def SES(self):
+
+    def HWES(self):
+
