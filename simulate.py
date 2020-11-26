@@ -103,4 +103,3 @@ def plot_sim(S0,T,n, func =asset):
             plt.plot(price_list)
     return plt.show()
 
-    
