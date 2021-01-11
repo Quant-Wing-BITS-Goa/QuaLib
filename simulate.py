@@ -1,7 +1,10 @@
-from scipy.stats import norm
-import numpy as np
-import pandas as pd 
-import matplotlib.pyplot as plt
+try:
+    from scipy.stats import norm
+    import numpy as np
+    import pandas as pd 
+    import matplotlib.pyplot as plt
+except ImportError:
+    print("Please import all required Libraries.")
 
 
 """"
