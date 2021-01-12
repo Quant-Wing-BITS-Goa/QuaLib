@@ -1,6 +1,9 @@
-import numpy as np
-import pandas as pd
-import math
+try:
+	import numpy as np
+	import pandas as pd
+	import math
+except ImportError:
+    print("Please import all required Libraries.")
 
 def GARCH(mean, alpha, lam, current, k):
 	v = 1/(1 - ((1 - alpha) * (1 - lam)))

@@ -1,7 +1,10 @@
-import numpy as np
-import pandas as pd
-from scipy.stats import norm
-from math import sqrt, pi
+try:
+    import numpy as np
+    import pandas as pd
+    from scipy.stats import norm
+    from math import sqrt, pi
+except ImportError:
+    print("Please import all required Libraries.")
 
 class BSE:
     """

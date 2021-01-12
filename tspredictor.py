@@ -1,15 +1,19 @@
-import numpy as np
-import pandas as pd
-from math import sqrt, pi
-from scipy.stats import norm
-from statsmodels.tsa.api import SimpleExpSmoothing
-from statsmodels.tsa.ar_model import AutoReg
-from statsmodels.tsa.arima_model import ARIMA
-from statsmodels.tsa.arima_model import ARMA
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from statsmodels.tsa.statespace.sarimax import SARIMAX
-from statsmodels.tsa.vector_ar.var_model import VAR
-from sklearn.metrics import mean_squared_error
+try:
+    import numpy as np
+    import pandas as pd
+    from math import sqrt, pi
+    from scipy.stats import norm
+    from statsmodels.tsa.api import SimpleExpSmoothing
+    from statsmodels.tsa.ar_model import AutoReg
+    from statsmodels.tsa.arima_model import ARIMA
+    from statsmodels.tsa.arima_model import ARMA
+    from statsmodels.tsa.holtwinters import ExponentialSmoothing
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    from statsmodels.tsa.vector_ar.var_model import VAR
+    from sklearn.metrics import mean_squared_error
+
+except ImportError:
+    print("Please import all required Libraries.")
 
 
 class tspredictor:
